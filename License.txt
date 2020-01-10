@@ -1,0 +1,18 @@
+This work is copyright (c) 2020 by Joseph Marshall.
+It is intended to be covered by an MIT-style license.
+In plain English, this means three simple things:
+
+1.  You are free to use, modify or extend any part of it or all of it.
+    You are free to give away or sell your copy or modifications, but
+    I'd appreciate it if you return updates to me so I could
+    incorporate them in future releases.
+
+2.  If you do use this software, please give me credit where it is
+    due.  This doesn't imply that I endorse further modifications you
+    make.
+
+3.  The software may not work as desired or do anything useful at all.
+    You place me under no obligation to fix or update anything.
+
+If you need clarification or high-falutin' legalise, just email me and
+we'll work it out.
