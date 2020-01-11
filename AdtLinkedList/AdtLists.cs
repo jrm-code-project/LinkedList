@@ -87,12 +87,18 @@ namespace AdtList
         }
 
         /// <summary>
+        /// Determines whether the list is the empty list.
+        /// </summary>
+        /// <returns><see langword="true"/>If list is the empty list.</returns>
+        public bool EndP { get => headCell is null; }
+
+        /// <summary>
         /// Primitive accessor returns the first element of a list.  <paramref name="this" /> must not be the empty list.
         /// </summary>
         /// <returns>The first element of a non-empty list.</returns>
         public object First ()
         {
-            if (headCell is null)
+            if (EndP)
                 throw new ArgumentException (nameof (First) + " called on an empty list.");
             else
                 return headCell.First;
@@ -106,7 +112,7 @@ namespace AdtList
         /// will be a (possibly empty) list.</returns>
         public List Rest ()
         {
-            if (headCell is null)
+            if (EndP)
                 throw new ArgumentException (nameof (Rest) + " called on an empty list.");
             else
                 return headCell.Rest;
@@ -153,7 +159,8 @@ namespace AdtList
         [Obsolete ("Use 'obj is Cons' instead.")]
         public static bool ConsP (object o) => o is CommonLispLinkedLists.Cons;
 
-        public static bool EndP (object o) => Object.ReferenceEquals (o, TheEmptyList);
+        public static bool EndP (List list) => list.EndP;
+        public static bool EndP (object o) => ((List) o).EndP;
 
         public static List List (params object [] elements)
         {
@@ -162,6 +169,16 @@ namespace AdtList
 
         [Obsolete ("Use 'obj is List' instead.")]
         public static bool ListP (object o) => o is List;
+
+        public static List Revappend (List list, List tail)
+        {
+            List answer = tail;
+            for (List listTail = list; !listTail.EndP; listTail = listTail.Rest())
+            {
+                answer = answer.Cons (listTail.First());
+            }
+            return answer;
+        }
 
         public static List SubvectorToList (object [] vector, int start, int end)
         {
@@ -173,7 +190,7 @@ namespace AdtList
             return answer;
         }
 
-        static readonly List TheEmptyList = AdtList.List.Empty;
+        public static readonly List TheEmptyList = AdtList.List.Empty;
 
         public static List VectorToList (object [] vector)
         {

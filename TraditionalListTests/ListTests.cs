@@ -51,6 +51,9 @@ namespace ListTests
             Assert.IsTrue (CommonLisp.EndP (null));
             Assert.IsFalse (CommonLisp.EndP (new Cons (2, 3)));
             Assert.ThrowsException<ArgumentException> (() => CommonLisp.EndP ("not a list"));
+
+            Assert.IsTrue (AdtLisp.TheEmptyList.EndP);
+            Assert.IsFalse (AdtLisp.TheEmptyList.Cons (1).EndP);
         }
 
         [TestMethod]
@@ -94,9 +97,30 @@ namespace ListTests
             List tail2 = tail1.Rest ();
             Assert.AreEqual (3, tail2.First ());
             List tail3 = tail2.Rest ();
-            Assert.AreEqual (List.Empty, tail3);
+            Assert.IsTrue (tail3.EndP);
             Assert.ThrowsException<ArgumentException> (() => tail3.First ());
             Assert.ThrowsException<ArgumentException> (() => tail3.Rest ());
+        }
+
+        [TestMethod]
+        public void TestRevappend ()
+        {
+            List head = AdtLisp.List (1, 2, 3);
+            List tail = AdtLisp.List (4, 5, 6);
+            List result = AdtLisp.Revappend (head, tail);
+            Assert.AreEqual (3, result.First ());
+            List tail1 = result.Rest ();
+            Assert.AreEqual (2, tail1.First ());
+            List tail2 = tail1.Rest ();
+            Assert.AreEqual (1, tail2.First ());
+            List tail3 = tail2.Rest ();
+            Assert.AreEqual (4, tail3.First ());
+            List tail4 = tail3.Rest ();
+            Assert.AreEqual (5, tail4.First ());
+            List tail5 = tail4.Rest ();
+            Assert.AreEqual (6, tail5.First ());
+            List tail6 = tail5.Rest ();
+            Assert.IsTrue (tail6.EndP);
         }
     }
 }
