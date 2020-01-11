@@ -87,19 +87,12 @@ namespace AdtList
         }
 
         /// <summary>
-        /// Checks whether we are at the end of a list. Returns <see langword="true"/> if <see langword="this"/> is the empty list,
-        /// <see langword="false" /> if there are elements remaining.
-        /// </summary>
-        /// <returns>Returns <see langword="true"/> if <see langword="this"/> is the empty list.</returns>
-        public bool EndP () => headCell is null;
-
-        /// <summary>
         /// Primitive accessor returns the first element of a list.  <paramref name="this" /> must not be the empty list.
         /// </summary>
         /// <returns>The first element of a non-empty list.</returns>
         public object First ()
         {
-            if (EndP())
+            if (headCell is null)
                 throw new ArgumentException (nameof (First) + " called on an empty list.");
             else
                 return headCell.First;
@@ -113,7 +106,7 @@ namespace AdtList
         /// will be a (possibly empty) list.</returns>
         public List Rest ()
         {
-            if (EndP())
+            if (headCell is null)
                 throw new ArgumentException (nameof (Rest) + " called on an empty list.");
             else
                 return headCell.Rest;
@@ -156,22 +149,18 @@ namespace AdtList
         [Obsolete ("Use 'list.Rest()' instead.")]
         public static List Cdr (object o) => ((List) o).Rest ();
 
-        // Consp (val):  Use <code>val is Cons</code> instead.  Does not return true for lists.
+        // Consp (val):  Use 'val is Cons' instead.  Does not return true for lists.
         [Obsolete ("Use 'obj is Cons' instead.")]
         public static bool ConsP (object o) => o is CommonLispLinkedLists.Cons;
 
-        [Obsolete ("Use 'list.EndP()' instead.")]
-        public static bool EndP (List list) => list.EndP ();
-
-        [Obsolete ("Use 'list.EndP()' instead.")]
-        public static bool EndP (object o) => ((List) o).EndP ();
+        public static bool EndP (object o) => Object.ReferenceEquals (o, TheEmptyList);
 
         public static List List (params object [] elements)
         {
             return VectorToList (elements);
         }
 
-        [Obsolete ("Use <code>obj is List</code> instead.")]
+        [Obsolete ("Use 'obj is List' instead.")]
         public static bool ListP (object o) => o is List;
 
         public static List SubvectorToList (object [] vector, int start, int end)
