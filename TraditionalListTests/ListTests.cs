@@ -2,6 +2,7 @@ using AdtList;
 using CommonLispLinkedLists;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Text;
 
 namespace ListTests
 {
@@ -150,6 +151,17 @@ namespace ListTests
             {
                 List.PrintDepth = oldPrintDepth;
             }
+        }
+
+        [TestMethod]
+        public void TestListEnumerator()
+        {
+            StringBuilder sb = new StringBuilder ();
+            foreach (object o in AdtLisp.List(1, 2, 3, 4, 5))
+            {
+                sb.Append (o.ToString ());
+            }
+            Assert.AreEqual ("12345", sb.ToString ());
         }
     }
 }

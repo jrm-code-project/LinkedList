@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Diagnostics;
 using System.Text;
 
@@ -10,7 +11,7 @@ namespace AdtList
     /// first cell instead of a pointer to it.  This avoids the needless indirection that would
     /// result if List were a class.
     /// </summary>
-    public struct List
+    public struct List : IEnumerable
     {
         /// <summary>
         /// A ListCell is the representation of a List.  It differs from a Cons in 2 ways.
@@ -100,7 +101,7 @@ namespace AdtList
         /// Determines whether the list is the empty list.
         /// </summary>
         /// <returns><see langword="true"/>If list is the empty list.</returns>
-        public bool EndP { get => headCell is null; }
+        public bool EndP => headCell is null;
 
         /// <summary>
         /// Primitive accessor returns the first element of a list.  <paramref name="this" /> must not be the empty list.
@@ -169,7 +170,7 @@ namespace AdtList
                 int oldPrintDepth = PrintDepth;
                 try
                 {
-                    PrintDepth = PrintDepth - 1;
+                    PrintDepth -= 1;
                     sb.Append (headCell.First.ToString ());
                 }
                 finally
@@ -194,7 +195,7 @@ namespace AdtList
                     int oldPrintDepth = PrintDepth;
                     try
                     {
-                        PrintDepth = PrintDepth - 1;
+                        PrintDepth -= 1;
                         sb.Append (tail.First ().ToString ());
                     } 
                     finally
@@ -207,6 +208,79 @@ namespace AdtList
             }
             sb.Append (")");
             return sb.ToString ();
+        }
+
+        public IEnumerator GetEnumerator ()
+        {
+            return new ListEnumerator (this);
+        }
+    }
+
+    public class ListEnumerator : IEnumerator
+    {
+        List head;
+        List current;
+
+        public ListEnumerator (List head)
+        {
+            this.head = head;
+        }
+
+        public object Current
+        {
+            get
+            {
+                if (head.EndP || current.EndP)
+                {
+                    throw new InvalidOperationException ();
+                }
+                return current.First();
+            }
+        }
+
+        public bool MoveNext ()
+        {
+            if (current.EndP)
+                current = head;
+            else
+                current = current.Rest ();
+            return !current.EndP;
+        }
+
+        public void Reset()
+        {
+            current = List.Empty;
+        }
+
+        // Implement IDisposable, which is also implemented by IEnumerator(T).
+        private bool disposedValue = false;
+        public void Dispose ()
+        {
+            Dispose (true);
+            GC.SuppressFinalize (this);
+        }
+
+        protected virtual void Dispose (bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // Dispose of managed resources.
+                }
+                current = List.Empty;
+                if (!head.EndP)
+                {
+                    head = List.Empty;
+                }
+            }
+
+            disposedValue = true;
+        }
+
+        ~ListEnumerator ()
+        {
+            Dispose (false);
         }
     }
 
