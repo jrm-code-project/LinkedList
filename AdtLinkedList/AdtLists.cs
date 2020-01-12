@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Text;
 
 namespace AdtList
 {
@@ -54,6 +55,15 @@ namespace AdtList
             /// A property that returns the remaining elements of the List cell.
             /// </summary>
             public List Rest => rest;
+
+            public override string ToString ()
+            {
+                return "(" +
+                    (first is null ? "null" : first.ToString ()) +
+                    " . " +
+                    rest.ToString () +
+                    ")";
+            }
         }
 
         /// <summary>
@@ -136,6 +146,67 @@ namespace AdtList
         public override int GetHashCode ()
         {
             return headCell is null ? 0 : headCell.First.GetHashCode ();
+        }
+
+        // Overly complex ToString method handles limits on Depth
+        // and Length set by PrintLength and PrintDepth.
+        public static int PrintLength { get; set; } = 10;
+        public static int PrintDepth { get; set; } = 3;
+
+        public override string ToString ()
+        {
+            if (PrintDepth == 0) return "#";
+            if (EndP) return "()";
+            StringBuilder sb = new StringBuilder ();
+            sb.Append ("(");
+            if (PrintLength == 0)
+            {
+                sb.Append ("...");
+            }
+            else
+            {
+
+                int oldPrintDepth = PrintDepth;
+                try
+                {
+                    PrintDepth = PrintDepth - 1;
+                    sb.Append (headCell.First.ToString ());
+                }
+                finally
+                {
+                    PrintDepth = oldPrintDepth;
+                }
+ 
+            }
+            int count = 1;
+            List tail = headCell.Rest;
+            while (true)
+            {
+                if (tail.EndP) break;
+                if (count >= PrintLength)
+                {
+                    sb.Append (" ...");
+                    break;
+                }
+                else
+                {
+                    sb.Append (" ");
+                    int oldPrintDepth = PrintDepth;
+                    try
+                    {
+                        PrintDepth = PrintDepth - 1;
+                        sb.Append (tail.First ().ToString ());
+                    } 
+                    finally
+                    {
+                        PrintDepth = oldPrintDepth;
+                    }
+                    count += 1;
+                    tail = tail.Rest ();
+                }
+            }
+            sb.Append (")");
+            return sb.ToString ();
         }
     }
 

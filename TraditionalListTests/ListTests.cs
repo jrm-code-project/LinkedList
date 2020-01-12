@@ -122,5 +122,34 @@ namespace ListTests
             List tail6 = tail5.Rest ();
             Assert.IsTrue (tail6.EndP);
         }
+
+        [TestMethod]
+        public void TestPrintLength ()
+        {
+            int oldPrintLength = List.PrintLength;
+            try
+            {
+                List.PrintLength = 3;
+                Assert.AreEqual ("(1 2 3 ...)", AdtLisp.List (1, 2, 3, 4, 5).ToString ());
+            } finally
+            {
+                List.PrintLength = oldPrintLength;
+            }
+        }
+
+        [TestMethod]
+        public void TestPrintDepth ()
+        {
+            int oldPrintDepth = List.PrintDepth;
+            try
+            {
+                List.PrintDepth = 1;
+                Assert.AreEqual ("(1 2 # 4 5)",
+                    AdtLisp.List (1, 2, AdtLisp.List (3, 4), 4, 5).ToString());
+            } finally
+            {
+                List.PrintDepth = oldPrintDepth;
+            }
+        }
     }
 }
