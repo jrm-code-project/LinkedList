@@ -21,19 +21,19 @@ namespace AdtList
         ///     of a list is simply the head cell, not the entire spine.)</item>
         /// </list>
         /// </summary>
-        class ListCell
+        private class ListCell
         {
             /// <summary>
             /// The field that holds the first element of the list.
             /// </summary>
             [DebuggerBrowsableAttribute (DebuggerBrowsableState.Never)]
-            readonly object first;
+            private readonly object first;
 
             /// <summary>
             /// The field that holds the remaining elements of a list after the first.
             /// </summary>
             [DebuggerBrowsableAttribute (DebuggerBrowsableState.Never)]
-            readonly List rest;
+            private readonly List rest;
 
             /// <summary>
             /// Constructs the concrete representation of a List.  This should eventually be turned into
@@ -71,7 +71,7 @@ namespace AdtList
         /// Field that refers to the ListCell that represents the head of the list, or null if the list is empty.
         /// Since List is a struct, this field refers to where the pointer to the ListCell will be stored.
         /// </summary>
-        readonly ListCell headCell;
+        private readonly ListCell headCell;
 
         /// <summary>
         /// Private constructor turns representation into abstract object.
@@ -79,12 +79,13 @@ namespace AdtList
         /// do anything but copy the pointer.
         /// </summary>
         /// <param name="headCell">The concrete representation of the list.</param>
-        List (ListCell headCell) { this.headCell = headCell; }
+        private List (ListCell headCell) { this.headCell = headCell; }
 
         /// <summary>A distinguised empty list that all lists end with.  It's just a list
         /// with a null headCell.</summary>
         public static List Empty => theEmptyList;
-        static readonly List theEmptyList = new List (null);
+
+        private static readonly List theEmptyList = new List (null);
 
         /// <summary>
         /// The standard way of constructing a new list by prepending a single element on to
@@ -128,12 +129,12 @@ namespace AdtList
             else
                 return headCell.Rest;
         }
-        
+
         // Override appropriate methods for value types (structs).
         public override bool Equals (object other)
         {
-            return other is null ? false 
-                : Object.ReferenceEquals (other, this) ? true 
+            return other is null ? false
+                : Object.ReferenceEquals (other, this) ? true
                 : other is List oList ? oList.headCell == headCell
                 : false;
         }
@@ -177,7 +178,7 @@ namespace AdtList
                 {
                     PrintDepth = oldPrintDepth;
                 }
- 
+
             }
             int count = 1;
             List tail = headCell.Rest;
@@ -197,7 +198,7 @@ namespace AdtList
                     {
                         PrintDepth -= 1;
                         sb.Append (tail.First ().ToString ());
-                    } 
+                    }
                     finally
                     {
                         PrintDepth = oldPrintDepth;
@@ -218,8 +219,9 @@ namespace AdtList
 
     public class ListEnumerator : IEnumerator
     {
-        List head;
-        List current;
+        private List head;
+        private List current;
+        private bool afterEnd;
 
         public ListEnumerator (List head)
         {
@@ -234,22 +236,31 @@ namespace AdtList
                 {
                     throw new InvalidOperationException ();
                 }
-                return current.First();
+                return current.First ();
             }
         }
 
         public bool MoveNext ()
         {
+            if (afterEnd)
+                throw new InvalidOperationException ();
+
+            current = current.EndP ? head : current.Rest ();
             if (current.EndP)
-                current = head;
+            {
+                afterEnd = true;
+                return false;
+            }
             else
-                current = current.Rest ();
-            return !current.EndP;
+            {
+                return true;
+            }
         }
 
-        public void Reset()
+        public void Reset ()
         {
             current = List.Empty;
+            afterEnd = false;
         }
 
         // Implement IDisposable, which is also implemented by IEnumerator(T).
@@ -288,44 +299,69 @@ namespace AdtList
     {
         // Car (list):  Instead of calling Car on a list, use the object-oriented syntax of list.First()
         [Obsolete ("Use 'list.First()' instead.")]
-        public static object Car (List list) => list.First ();
+        public static object Car (List list)
+        {
+            return list.First ();
+        }
 
         [Obsolete ("Use 'list.First()' instead.")]
-        public static object Car (object o) => ((List) o).First ();
+        public static object Car (object o)
+        {
+            return ((List) o).First ();
+        }
 
         // Cdr (list):  Instead of calling Cdr on a list, use the object-oriented syntax of list.Rest()
         [Obsolete ("Use 'list.Rest()' instead.")]
-        public static List Cdr (List list) => list.Rest ();
+        public static List Cdr (List list)
+        {
+            return list.Rest ();
+        }
 
         [Obsolete ("Use 'list.Rest()' instead.")]
-        public static List Cdr (object o) => ((List) o).Rest ();
+        public static List Cdr (object o)
+        {
+            return ((List) o).Rest ();
+        }
 
         // Consp (val):  Use 'val is Cons' instead.  Does not return true for lists.
         [Obsolete ("Use 'obj is Cons' instead.")]
-        public static bool ConsP (object o) => o is CommonLispLinkedLists.Cons;
+        public static bool ConsP (object o)
+        {
+            return o is CommonLispLinkedLists.Cons;
+        }
 
-        public static bool EndP (List list) => list.EndP;
-        public static bool EndP (object o) => ((List) o).EndP;
+        public static bool EndP (List list)
+        {
+            return list.EndP;
+        }
 
-        public static List List (params object [] elements)
+        public static bool EndP (object o)
+        {
+            return ((List) o).EndP;
+        }
+
+        public static List List (params object[] elements)
         {
             return VectorToList (elements);
         }
 
         [Obsolete ("Use 'obj is List' instead.")]
-        public static bool ListP (object o) => o is List;
+        public static bool ListP (object o)
+        {
+            return o is List;
+        }
 
         public static List Revappend (List list, List tail)
         {
             List answer = tail;
-            for (List listTail = list; !listTail.EndP; listTail = listTail.Rest())
+            foreach (object o in list)
             {
-                answer = answer.Cons (listTail.First());
+                answer = answer.Cons (o);
             }
             return answer;
         }
 
-        public static List SubvectorToList (object [] vector, int start, int end)
+        public static List SubvectorToList (object[] vector, int start, int end)
         {
             List answer = TheEmptyList;
             for (int index = end - 1; index >= start; --index)
@@ -337,7 +373,7 @@ namespace AdtList
 
         public static readonly List TheEmptyList = AdtList.List.Empty;
 
-        public static List VectorToList (object [] vector)
+        public static List VectorToList (object[] vector)
         {
             return SubvectorToList (vector, 0, vector.Length);
         }
